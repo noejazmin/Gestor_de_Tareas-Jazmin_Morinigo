@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  fetchSignInMethodsForEmail,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import type {
   User as FirebaseUser,
@@ -19,18 +20,6 @@ import type { Credentials } from './authTypes';
  * Todos los parámetros y retornos están estrictamente tipados sin usar 'any'.
  */
 
-/**
- * Clase de error personalizada que simula la estructura de FirebaseError
- * para ser capturada y mapeada por 'mapAuthError' de forma segura y tipada.
- */
-class CustomAuthError extends Error {
-  code: string;
-  constructor(code: string, message: string) {
-    super(message);
-    this.code = code;
-    Object.setPrototypeOf(this, CustomAuthError.prototype);
-  }
-}
 
 /**
  * Registra a un nuevo usuario utilizando su correo electrónico y contraseña.
@@ -48,66 +37,31 @@ export async function registerUser(credentials: Credentials): Promise<UserCreden
  * Inicia sesión de un usuario existente utilizando su correo electrónico y contraseña.
  * Lanza un error si faltan las credenciales requeridas.
  * 
- * FLUJO MEJORADO DE INICIO DE SESIÓN:
- * 1. Verifica si el correo electrónico existe en Firebase con fetchSignInMethodsForEmail.
- * 2. Si no tiene métodos de inicio de sesión asociados, lanza un error auth/user-not-found.
- * 3. Si existe, procede a iniciar sesión con signInWithEmailAndPassword.
- * 4. Si la autenticación falla, traduce errores de credenciales a auth/wrong-password.
+ * COMENTARIO DIDÁCTICO:
+ * Se delega directamente la autenticación al SDK de Firebase para evitar la enumeración
+ * de correos y cumplir con las políticas de seguridad. Los errores de credenciales inválidas,
+ * usuario no encontrado o contraseña incorrecta serán capturados en la UI/Contexto
+ * y mostrados bajo un único mensaje amigable.
  */
 export async function loginUser(credentials: Credentials): Promise<UserCredential> {
   const { email, password } = credentials;
   if (!email || !password) {
     throw new Error('Faltan el correo electrónico o la contraseña.');
   }
+  return signInWithEmailAndPassword(auth, email, password);
+}
 
-  let emailExists = true;
-  let enumerationProtectionActive = false;
-
-  try {
-    // Verificamos métodos de inicio de sesión asociados a este correo
-    const methods = await fetchSignInMethodsForEmail(auth, email);
-    
-    // Si la lista de métodos está vacía, el correo no está registrado
-    if (methods.length === 0) {
-      emailExists = false;
-    }
-  } catch (err: unknown) {
-    // ACLARACIÓN IMPORTANTE (PROTECCIÓN CONTRA ENUMERACIÓN DE CORREOS):
-    // En proyectos de Firebase creados después de septiembre de 2023, la protección de 
-    // enumeración de correos está habilitada por defecto. Esto hace que fetchSignInMethodsForEmail
-    // falle con 'auth/admin-restricted-operation' o siempre devuelva un array vacío/error.
-    // Si esto ocurre, establecemos que la protección está activa y omitimos la validación previa.
-    enumerationProtectionActive = true;
-  }
-
-  // Si pudimos verificar la ausencia del correo, lanzamos el error correspondiente
-  if (!emailExists && !enumerationProtectionActive) {
-    throw new CustomAuthError(
-      'auth/user-not-found',
-      'No existe una cuenta registrada con ese correo.'
-    );
-  }
-
-  try {
-    // Si el correo existe (o la protección nos impide saberlo), intentamos hacer login
-    return await signInWithEmailAndPassword(auth, email, password);
-  } catch (err: unknown) {
-    // Si la verificación previa fue exitosa (el correo sí existe y la protección no estaba activa)
-    // entonces cualquier falla de credenciales posterior se debe a una contraseña incorrecta.
-    if (!enumerationProtectionActive && typeof err === 'object' && err !== null && 'code' in err) {
-      const errorCode = (err as { code: unknown }).code;
-      if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/wrong-password') {
-        throw new CustomAuthError(
-          'auth/wrong-password',
-          'La contraseña es incorrecta.'
-        );
-      }
-    }
-    
-    // Si la protección está activa, lanzamos el error original (ej: auth/invalid-credential)
-    // para que la UI lo maneje con el fallback genérico seguro ("El correo o la contraseña son incorrectos.")
-    throw err;
-  }
+/**
+ * Inicia sesión o registra un usuario utilizando su cuenta de Google.
+ * Abre una ventana emergente (popup) para el flujo de autenticación de Google.
+ * 
+ * COMENTARIO DIDÁCTICO:
+ * 'GoogleAuthProvider' inicializa el proveedor de autenticación de Google y 
+ * 'signInWithPopup' abre la interfaz nativa del navegador para seleccionar la cuenta.
+ */
+export async function loginWithGoogle(): Promise<UserCredential> {
+  const provider = new GoogleAuthProvider();
+  return signInWithPopup(auth, provider);
 }
 
 /**

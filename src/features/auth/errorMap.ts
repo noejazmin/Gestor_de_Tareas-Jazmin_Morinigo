@@ -40,19 +40,28 @@ export function mapAuthError(error: unknown): string {
     case 'auth/user-disabled':
       return 'Esta cuenta de usuario ha sido deshabilitada.';
     case 'auth/user-not-found':
-      return 'No existe una cuenta registrada con ese correo.';
     case 'auth/wrong-password':
-      return 'La contraseña es incorrecta.';
+    case 'auth/invalid-credential':
+      // COMENTARIO DIDÁCTICO:
+      // Agrupamos estos errores bajo el mismo mensaje genérico para evitar vulnerabilidad de enumeración
+      // de usuarios y proporcionar una experiencia consistente en el login.
+      return 'No pudimos iniciar sesión. Verificá el correo y la contraseña.';
     case 'auth/email-already-in-use':
       return 'Ya existe una cuenta registrada con ese correo.';
     case 'auth/weak-password':
       return 'La contraseña debe tener al menos 6 caracteres.';
     case 'auth/too-many-requests':
       return 'Se hicieron demasiados intentos. Probá nuevamente más tarde.';
-    case 'auth/invalid-credential':
-      return 'El correo o la contraseña son incorrectos.';
     case 'auth/operation-not-allowed':
       return 'El método de inicio de sesión con correo y contraseña no está habilitado.';
+    case 'auth/popup-closed-by-user':
+      // COMENTARIO DIDÁCTICO:
+      // Manejamos cuando el usuario cierra la ventana de Google de forma manual.
+      return 'Cerraste la ventana de Google antes de completar el acceso.';
+    case 'auth/cancelled-popup-request':
+      // COMENTARIO DIDÁCTICO:
+      // Evita acumulación de peticiones si ya hay una ventana emergente de Google en curso.
+      return 'Ya hay una ventana de acceso abierta.';
     default:
       // Retornamos una descripción genérica en español incluyendo el código para depuración si no se mapeó
       return `Error de autenticación: ${error.code}. Por favor, vuelve a intentarlo.`;

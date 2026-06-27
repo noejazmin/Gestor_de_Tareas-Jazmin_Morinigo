@@ -1,7 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthUser, Credentials, AuthContextType } from './authTypes';
-import { registerUser, loginUser, logoutUser, observeAuthChanges } from './authService';
+import { registerUser, loginUser, logoutUser, observeAuthChanges, loginWithGoogle } from './authService';
 import { mapAuthError } from './errorMap';
 
 /**
@@ -105,6 +106,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setError(null);
+    try {
+      await loginWithGoogle();
+      // El estado del usuario se actualizará automáticamente a través de observeAuthChanges
+    } catch (err: unknown) {
+      const errorMessage = mapAuthError(err);
+      // COMENTARIO DIDÁCTICO:
+      // Si el código de error no fue mapeado específicamente en errorMap y devuelve la cadena por defecto,
+      // mostramos el fallback de Google para una experiencia premium.
+      if (errorMessage.startsWith('Error de autenticación:')) {
+        setError('No pudimos iniciar sesión con Google. Intentá nuevamente.');
+      } else {
+        setError(errorMessage);
+      }
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -113,6 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error,
         login: handleLogin,
         register: handleRegister,
+        loginWithGoogle: handleGoogleLogin,
         logout: handleLogout,
         clearError,
       }}
