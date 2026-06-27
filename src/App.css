@@ -248,3 +248,15 @@ h1 {
   display: inline-flex !important;
 }
 
+/* Hito 5: Estilos adicionales para TasksPage */
+.tasks-model-list {
+  margin: 8px 0 0 16px !important;
+  padding: 0 !important;
+  list-style-type: disc;
+}
+
+.tasks-security-success {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
