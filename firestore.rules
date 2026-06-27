@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // REGLAS DE SEGURIDAD PARA LA COLECCIÓN DE TAREAS (tasks):
+    // 
+    // COMENTARIOS DIDÁCTICOS:
+    // 1. Cada tarea tiene un campo 'userId' que indica a quién le pertenece.
+    // 2. Un usuario autenticado (request.auth != null) solo puede:
+    //    - Crear una tarea si le asigna su propio UID (request.resource.data.userId == request.auth.uid).
+    //    - Leer, actualizar o eliminar la tarea si el documento ya guardado contiene su UID (resource.data.userId == request.auth.uid).
+    // 3. Esto previene que usuarios maliciosos accedan, editen o listen tareas de otros miembros.
+    
+    match /tasks/{taskId} {
+      // Un usuario solo puede leer, actualizar o eliminar sus propias tareas
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      
+      // Un usuario solo puede crear tareas si es el autor y asigna su propio userId
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+  }
+}
