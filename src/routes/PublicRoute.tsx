@@ -27,9 +27,9 @@ export const PublicRoute: React.FC = () => {
           <h1>Cargando...</h1>
         </header>
         <section className="status-section">
-          <div className="status-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px' }}>
+          <div className="status-card route-loading-card">
             <h3>Verificando credenciales...</h3>
-            <div className="spinner" style={{ borderTopColor: 'var(--accent)', borderWidth: '4px', width: '32px', height: '32px', marginTop: '20px' }} />
+            <div className="spinner route-loading-spinner" />
           </div>
         </section>
       </main>

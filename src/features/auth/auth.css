@@ -271,3 +271,8 @@
   height: 20px;
   display: block;
 }
+
+/* Spinner específico para el botón de Google */
+.spinner-google {
+  border-top-color: var(--text-h);
+}

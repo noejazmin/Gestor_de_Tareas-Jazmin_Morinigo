@@ -146,7 +146,7 @@ export const RegisterPage: React.FC = () => {
         disabled={submitting}
       >
         {submitting ? (
-          <div className="spinner" style={{ borderTopColor: 'var(--text-h)' }} />
+          <div className="spinner spinner-google" />
         ) : (
           <>
             <svg className="google-icon" viewBox="0 0 24 24" aria-hidden="true">

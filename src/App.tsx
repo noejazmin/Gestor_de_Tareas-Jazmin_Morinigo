@@ -46,9 +46,9 @@ function App() {
               <h1>Página No Encontrada</h1>
             </header>
             <section className="status-section">
-              <div className="status-card" style={{ maxWidth: '420px', margin: '0 auto', textAlign: 'center' }}>
-                <p style={{ marginBottom: '20px' }}>La página que estás buscando no existe o fue movida.</p>
-                <Link to="/tasks" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+              <div className="status-card notfound-card">
+                <p className="notfound-text">La página que estás buscando no existe o fue movida.</p>
+                <Link to="/tasks" className="btn-primary notfound-link">
                   Volver al Panel
                 </Link>
               </div>

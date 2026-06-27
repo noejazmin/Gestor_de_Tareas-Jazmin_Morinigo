@@ -159,3 +159,92 @@ h1 {
   }
 }
 
+/* ESTILOS DE LA PÁGINA DE TAREAS (TasksPage) */
+.tasks-container-card {
+  max-width: 480px !important;
+  margin: 0 auto !important;
+}
+
+.tasks-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 16px !important;
+}
+
+.tasks-header-icon {
+  background: rgba(170, 59, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.tasks-description {
+  margin: 0 0 20px 0 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.tasks-info-card {
+  background: var(--code-bg);
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.tasks-info-label {
+  color: var(--text-h);
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.tasks-info-value {
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tasks-didactic-note {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--text-h);
+  font-size: 13px;
+  text-align: left;
+  line-height: 1.4;
+  margin-bottom: 24px;
+}
+
+.btn-logout {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* ESTILOS DE LA PÁGINA NOT FOUND (404) */
+.notfound-card {
+  max-width: 420px !important;
+  margin: 0 auto !important;
+  text-align: center !important;
+}
+
+.notfound-text {
+  margin-bottom: 20px !important;
+}
+
+.notfound-link {
+  text-decoration: none !important;
+  display: inline-flex !important;
+}
+
