@@ -317,3 +317,60 @@
   font-size: 14.5px;
   color: var(--text);
 }
+
+/* ESTILOS PARA EL BOTÓN Y ALERTAS DE ENVÍO DE EMAIL */
+.task-email-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.btn-email {
+  background: linear-gradient(135deg, var(--accent), #7928ca) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(121, 40, 202, 0.25) !important;
+  border: none !important;
+}
+
+.btn-email:hover:not(:disabled) {
+  opacity: 0.95 !important;
+  box-shadow: 0 6px 16px rgba(121, 40, 202, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+.task-email-alert {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  animation: slideUp 0.3s ease-out;
+}
+
+.task-email-alert.success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.task-email-alert.error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+@media (prefers-color-scheme: dark) {
+  .task-email-alert.success {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #34d399;
+  }
+
+  .task-email-alert.error {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+}

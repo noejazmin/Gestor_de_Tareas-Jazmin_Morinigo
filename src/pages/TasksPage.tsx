@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useTasks } from '../features/tasks/useTasks';
 import { TaskForm } from '../features/tasks/components/TaskForm';
 import { TaskList } from '../features/tasks/components/TaskList';
+import { TaskEmailButton } from '../features/tasks/components/TaskEmailButton';
 import '../features/tasks/tasks.css';
 import '../features/auth/auth.css';
 
@@ -42,6 +43,9 @@ export const TasksPage: React.FC = () => {
           <button onClick={logout} className="btn-primary btn-logout">
             Cerrar Sesión
           </button>
+
+          {/* Botón de envío de resumen de tareas por email */}
+          <TaskEmailButton email={user?.email} tasks={tasks} />
         </div>
 
         <div className="tasks-card-premium">
