@@ -1,63 +1,83 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useTasks } from '../features/tasks/useTasks';
+import { TaskForm } from '../features/tasks/components/TaskForm';
+import { TaskList } from '../features/tasks/components/TaskList';
+import '../features/tasks/tasks.css';
 import '../features/auth/auth.css';
 
 /**
- * PÁGINA PROVISIONAL DE TAREAS (TasksPage):
+ * PÁGINA COMPOSITORA DE TAREAS (TasksPage):
  * 
- * Actúa como panel de control temporal para los usuarios autenticados.
- * 
- * - Muestra el correo electrónico del usuario conectado.
- * - Explica claramente que la funcionalidad CRUD se implementará en el próximo hito.
- * - Expone un botón para cerrar sesión de manera segura.
+ * Actúa como panel principal (Dashboard). Se encarga de:
+ * 1. Obtener la sesión del usuario autenticado (AuthContext).
+ * 2. Cargar las tareas y exponer las operaciones mediante el custom hook 'useTasks'.
+ * 3. Distribuir y renderizar los componentes del formulario (TaskForm) y listado (TaskList).
  */
 export const TasksPage: React.FC = () => {
   const { user, logout } = useAuth();
+  const {
+    tasks,
+    loading,
+    error,
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleTaskCompleted,
+  } = useTasks(user?.uid);
 
   return (
-    <div className="status-card tasks-container-card">
-      <h3 className="tasks-header">
-        <span className="icon tasks-header-icon">✦</span>
-        Panel de Tareas (Dashboard)
-      </h3>
-      
-      <p className="tasks-description">
-        ¡Hola! Has accedido a la sección privada. El modelo de datos de tareas y las reglas de seguridad
-        de Cloud Firestore ya se encuentran configurados y listos para la integración del CRUD.
-      </p>
+    <div className="tasks-dashboard-layout">
+      {/* Panel izquierdo: Información del usuario y Formulario de creación */}
+      <aside className="tasks-panel-left">
+        <div className="tasks-card-premium">
+          <h3 className="tasks-header">
+            <span className="icon tasks-header-icon">👤</span>
+            Perfil de Usuario
+          </h3>
+          <div className="tasks-info-card">
+            <strong className="tasks-info-label">Sesión iniciada como</strong>
+            <span className="tasks-info-value">{user?.email}</span>
+          </div>
+          <button onClick={logout} className="btn-primary btn-logout">
+            Cerrar Sesión
+          </button>
+        </div>
 
-      <div className="tasks-info-card">
-        <strong className="tasks-info-label">
-          Usuario Autenticado
-        </strong>
-        <span className="tasks-info-value">
-          {user?.email} (UID: {user?.uid})
-        </span>
-      </div>
+        <div className="tasks-card-premium">
+          <h3 className="tasks-header">
+            <span className="icon tasks-header-icon">➕</span>
+            Nueva Tarea
+          </h3>
+          <TaskForm onSubmit={createTask} submitButtonText="Crear Tarea" />
+        </div>
+      </aside>
 
-      <div className="tasks-didactic-note">
-        <strong>Estructura del Modelo (Hito 5):</strong>
-        <ul className="tasks-model-list">
-          <li><strong>id:</strong> Identificador del documento.</li>
-          <li><strong>title:</strong> Título de la tarea.</li>
-          <li><strong>description:</strong> Detalle de la tarea.</li>
-          <li><strong>completed:</strong> Estado (booleano).</li>
-          <li><strong>userId:</strong> ID del creador (para aislar datos).</li>
-          <li><strong>createdAt / updatedAt:</strong> Fechas (Timestamp).</li>
-        </ul>
-      </div>
+      {/* Panel derecho: Listado de tareas con onSnapshot en tiempo real */}
+      <main className="tasks-panel-right">
+        <div className="tasks-card-premium">
+          <h3 className="tasks-header">
+            <span className="icon tasks-header-icon">📋</span>
+            Mis Tareas
+          </h3>
 
-      <div className="tasks-didactic-note tasks-security-success">
-        🛡️ <strong>Reglas de Seguridad configuradas:</strong> Cada usuario está restringido para crear, leer, editar
-        o eliminar únicamente sus propios documentos de tareas a través de la validación de <code>request.auth.uid</code>.
-      </div>
+          {error && <div className="task-error-alert">{error}</div>}
 
-      <button
-        onClick={logout}
-        className="btn-primary btn-logout"
-      >
-        Cerrar Sesión
-      </button>
+          {loading ? (
+            <div className="tasks-loader-container">
+              <div className="spinner route-loading-spinner" />
+              <p className="tasks-loader-text">Cargando tareas en tiempo real...</p>
+            </div>
+          ) : (
+            <TaskList
+              tasks={tasks}
+              onUpdate={updateTask}
+              onDelete={deleteTask}
+              onToggleComplete={toggleTaskCompleted}
+            />
+          )}
+        </div>
+      </main>
     </div>
   );
 };
