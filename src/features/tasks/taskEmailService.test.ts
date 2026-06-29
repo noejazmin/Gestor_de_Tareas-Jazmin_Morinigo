@@ -11,7 +11,7 @@ describe('taskEmailService', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       json: async () => ({ success: true, message: 'Enviado!' }),
-    } as Response);
+    } as unknown as Response);
 
     const payload: TaskEmailSummaryPayload = {
       email: 'test@example.com',
@@ -36,7 +36,7 @@ describe('taskEmailService', () => {
       ok: false,
       status: 500,
       json: async () => ({ success: false, message: 'Error de servidor' }),
-    } as Response);
+    } as unknown as Response);
 
     const payload: TaskEmailSummaryPayload = {
       email: 'test@example.com',
@@ -55,7 +55,7 @@ describe('taskEmailService', () => {
       json: async () => {
         throw new Error('Invalid JSON');
       },
-    } as Response);
+    } as unknown as Response);
 
     const payload: TaskEmailSummaryPayload = {
       email: 'test@example.com',
