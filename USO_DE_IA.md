@@ -36,10 +36,10 @@ A lo largo de los hitos del proyecto se emplearon prompts conversacionales del s
 
 * **Evitar el uso de `any`**: La IA sugirió utilizar tipos utilitarios de TypeScript (como `Pick<Task, 'id' | 'title' | ...>`) para transferir de manera segura únicamente los campos mínimos necesarios al backend serverless, asegurando tipados limpios e inmutables.
 * **Manejo de Cierres de Suscripción**: Se decidió de mutuo acuerdo retornar la llamada de cancelación del escuchador (`unsubscribe`) dentro del hook de limpieza `useEffect`. Esto previene fugas de memoria (*memory leaks*) en el cliente al desmontar las pantallas.
-* **Ordenamiento de Tareas en Cliente vs. Servidor**: Tras detectar que el ordenamiento por fecha de creación en el servidor forzaba la creación manual de índices compuestos en la consola de Firebase, se decidió simplificar la consulta en el servidor y realizar el ordenamiento en memoria del cliente mediante:
-  `tasks.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());`
-  Esto evitó errores de precondición (`failed-precondition`) y mantuvo el sistema reactivo y estable de inmediato.
+* **Ordenamiento de Tareas en Cliente vs. Servidor**: Tras detectar que el ordenamiento por fecha de creación en el servidor forzaba la creación manual de índices compuestos en la consola de Firebase, se decidió simplificar la consulta en el servidor y realizar el ordenamiento en memoria del cliente.
 * **Estructura Segura del Servidor Serverless**: Mantener las variables de credenciales de AWS (`AWS_ACCESS_KEY_ID`, etc.) legibles únicamente en la carpeta `api/` (Vercel Functions), evitando su exposición en el frontend del cliente.
+* **Estrategia de Reordenamiento con Filtros Activos (Hito 9)**: Para evitar que el drag & drop altere la posición de las tareas ocultas por filtros activos (ej. pendientes), se diseñó un algoritmo para remapear los valores `order` basándose en la lista visible y actualizando solo los ítems modificados a través de `writeBatch` de Firestore.
+* **Mockeo de dnd-kit para Testing (Hito 9)**: Con asistencia de la IA, se estructuraron mocks globales para `@dnd-kit/core` y `@dnd-kit/sortable` en `tests/setup.ts` para posibilitar que la suite de Vitest y JSDOM renderice los listados y compile exitosamente sin requerir soporte físico del motor de sensores de puntero.
 
 ---
 

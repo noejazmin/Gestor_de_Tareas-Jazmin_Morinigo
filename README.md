@@ -79,6 +79,17 @@ gestor_de_tareas_pi4/
   - **Aislamiento de Datos**: Cada usuario ve y opera única y exclusivamente sobre sus propias tareas, validado mediante reglas de seguridad de Firestore (`firestore.rules`).
 * **Resumen de Tareas por Email**:
   - Botón integrado en la UI que envía al correo del usuario autenticado un reporte visual e interactivo HTML que resume el total de tareas, completadas, pendientes y sus detalles, utilizando AWS SES de forma segura en el servidor.
+* **Filtros y Ordenamientos (Hito 9)**:
+  - Filtrar tareas dinámicamente por estado: Todas, Pendientes o Completadas.
+  - Ordenar tareas en memoria por: Orden manual (Drag & Drop), Prioridad (Alta > Media > Baja) o Fecha de vencimiento (ubicando al final las tareas sin fecha límite).
+* **Prioridad y Fecha de Vencimiento (Hito 9)**:
+  - Asignación de prioridad (Baja, Media, Alta) y fecha de vencimiento opcional a cada tarea.
+  - Indicador visual si la tarea está atrasada (vencida) mediante bordes y alertas de color rojo.
+  - Soporte y compatibilidad hacia atrás: las tareas antiguas que no disponen de prioridad, vencimiento u orden por defecto se adaptan sin romper el funcionamiento.
+* **Reordenamiento con Drag & Drop (Hito 9)**:
+  - Reordenamiento interactivo vertical de tareas mediante arrastre visual con `@dnd-kit` (incluye drag handles).
+  - Habilitado únicamente bajo la opción de "Orden manual".
+  - Sincronización transaccional en lote (`writeBatch`) que persiste la nueva secuencia en Firestore de forma atómica.
 
 ---
 
