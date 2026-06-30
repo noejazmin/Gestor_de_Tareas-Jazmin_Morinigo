@@ -99,33 +99,36 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         />
       </div>
 
-      {/* Control de Prioridad */}
-      <div className="form-group">
-        <label className="form-label" htmlFor="task-priority">Prioridad</label>
-        <select
-          id="task-priority"
-          className="form-input"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-          disabled={submitting}
-        >
-          <option value="low">Baja</option>
-          <option value="medium">Media</option>
-          <option value="high">Alta</option>
-        </select>
-      </div>
+      {/* Agrupamiento responsivo de prioridad y vencimiento en una sola fila */}
+      <div className="task-form-row">
+        {/* Control de Prioridad */}
+        <div className="form-group">
+          <label className="form-label" htmlFor="task-priority">Prioridad</label>
+          <select
+            id="task-priority"
+            className="form-input"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
+            disabled={submitting}
+          >
+            <option value="low">Baja</option>
+            <option value="medium">Media</option>
+            <option value="high">Alta</option>
+          </select>
+        </div>
 
-      {/* Control de Fecha de Vencimiento */}
-      <div className="form-group">
-        <label className="form-label" htmlFor="task-duedate">Fecha de Vencimiento (Opcional)</label>
-        <input
-          id="task-duedate"
-          type="date"
-          className="form-input"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          disabled={submitting}
-        />
+        {/* Control de Fecha de Vencimiento */}
+        <div className="form-group">
+          <label className="form-label" htmlFor="task-duedate">Fecha de Vencimiento (Opcional)</label>
+          <input
+            id="task-duedate"
+            type="date"
+            className="form-input"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            disabled={submitting}
+          />
+        </div>
       </div>
 
       <div className="task-form-actions">

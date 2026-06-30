@@ -118,7 +118,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       style={style}
       className={`task-item ${task.completed ? 'completed' : ''} ${loading ? 'task-loading' : ''} ${isDragging ? 'task-item-dragging' : ''} ${isOverdue ? 'overdue-alert-border' : ''}`}
     >
-      {/* Control visual de arrastre (solo activo en ordenamiento manual) */}
+      {/* 1. Tirador visual de arrastre (solo activo en ordenamiento manual) */}
       {isManualSort && (
         <div
           className="task-drag-handle"
@@ -131,6 +131,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </div>
       )}
 
+      {/* 2. Checkbox personalizado */}
       <div className="task-item-checkbox-container">
         <label className="checkbox-label">
           <input
@@ -144,25 +145,27 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </label>
       </div>
 
+      {/* 3. Contenido de la tarea con jerarquía mejorada */}
       <div className="task-item-content">
-        <div className="task-item-header-meta">
-          <h3 className="task-item-title">{task.title}</h3>
-          
-          {/* Badge de prioridad */}
+        <h3 className="task-item-title">{task.title}</h3>
+        <p className="task-item-desc">{task.description}</p>
+        
+        {/* Metadatos al pie de la tarjeta (Hito 9) */}
+        <div className="task-item-footer-meta">
           <span className={`task-badge priority-${task.priority}`}>
             {task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
           </span>
-        </div>
+          
+          <span className={`task-due-date-badge ${isOverdue ? 'overdue-text' : ''}`}>
+            📅 {task.dueDate ? `Vence: ${task.dueDate}` : 'Sin vencimiento'}
+          </span>
 
-        <p className="task-item-desc">{task.description}</p>
-        
-        {/* Fecha de vencimiento con indicador de atraso */}
-        <div className={`task-due-date ${isOverdue ? 'overdue-text' : ''}`}>
-          <span>📅 {task.dueDate ? `Vence: ${task.dueDate}` : 'Sin vencimiento'}</span>
           {isOverdue && <span className="overdue-tag">⚠️ Vencida</span>}
+          {task.completed && <span className="completed-tag">✓ Completada</span>}
         </div>
       </div>
 
+      {/* 4. Botones de acción a la derecha */}
       <div className="task-item-actions">
         <button
           onClick={() => setIsEditing(true)}
