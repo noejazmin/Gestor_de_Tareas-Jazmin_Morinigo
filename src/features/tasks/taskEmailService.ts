@@ -2,7 +2,7 @@ import type { Task } from './taskTypes';
 
 export interface TaskEmailSummaryPayload {
   email: string;
-  tasks: Pick<Task, 'id' | 'title' | 'description' | 'completed'>[];
+  tasks: Pick<Task, 'id' | 'title' | 'description' | 'completed' | 'priority' | 'dueDate'>[];
 }
 
 export interface SendTaskSummaryResponse {

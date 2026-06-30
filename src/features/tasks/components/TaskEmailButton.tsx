@@ -42,12 +42,14 @@ export const TaskEmailButton: React.FC<TaskEmailButtonProps> = ({ email, tasks }
     setSuccessMsg(null);
     setErrorMsg(null);
 
-    // Mapeamos las tareas para enviar únicamente los campos estrictamente necesarios
+    // Mapeamos las tareas para enviar únicamente los campos necesarios incluyendo prioridad y vencimiento
     const mappedTasks = tasks.map((t) => ({
       id: t.id,
       title: t.title,
       description: t.description,
       completed: t.completed,
+      priority: t.priority,
+      dueDate: t.dueDate,
     }));
 
     try {
