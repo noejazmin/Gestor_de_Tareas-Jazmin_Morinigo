@@ -6,7 +6,10 @@ import { Timestamp } from 'firebase/firestore';
  * - 'title': Título descriptivo de la tarea.
  * - 'description': Detalle de lo que se debe realizar en la tarea.
  * - 'completed': Estado de finalización de la tarea (true/false).
- * - 'userId': ID del usuario (uid) al que le pertenece esta tarea. Sirve para filtrar y proteger datos.
+ * - 'userId': ID del usuario (uid) al que le pertenece esta tarea.
+ * - 'priority': Nivel de prioridad ("low" | "medium" | "high").
+ * - 'dueDate': Fecha límite de vencimiento opcional en formato cadena (YYYY-MM-DD).
+ * - 'order': Entero para indicar el ordenamiento manual drag & drop de las tareas.
  * - 'createdAt': Marca de tiempo de cuándo se creó la tarea en Firestore.
  * - 'updatedAt': Marca de tiempo de la última modificación en Firestore.
  */
@@ -16,29 +19,33 @@ export interface Task {
   description: string;
   completed: boolean;
   userId: string;
+  priority: 'low' | 'medium' | 'high';
+  dueDate?: string;
+  order: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
 
 /**
  * DATOS REQUERIDOS PARA CREAR UNA TAREA:
- * Al crear la tarea, el estado 'completed' suele ser 'false' por defecto, y
- * las fechas de creación/actualización las maneja el servidor de Firestore o el servicio.
- * El campo 'userId' es obligatorio para asociar la tarea a su creador de inmediato.
  */
 export interface CreateTaskInput {
   title: string;
   description: string;
   userId: string;
+  priority: 'low' | 'medium' | 'high';
+  dueDate?: string;
+  order: number;
 }
 
 /**
  * CAMPOS PERMITIDOS PARA ACTUALIZAR UNA TAREA:
- * Al actualizar una tarea, todos los campos modificables son opcionales
- * para permitir actualizaciones parciales de los datos.
  */
 export interface UpdateTaskInput {
   title?: string;
   description?: string;
   completed?: boolean;
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string;
+  order?: number;
 }

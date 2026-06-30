@@ -11,6 +11,7 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import type { Task, CreateTaskInput, UpdateTaskInput } from './taskTypes';
 import { validateCreateTask } from './taskValidators';
@@ -18,17 +19,15 @@ import { validateCreateTask } from './taskValidators';
 /**
  * SERVICIO DE TAREAS (FIRESTORE):
  * 
- * Encapsula toda la interacción directa con el SDK de Firestore para aislar
- * la lógica de negocio y base de datos de los componentes React.
+ * Encapsula la comunicación con Cloud Firestore para la gestión de las tareas.
  */
 export const tasksCollection = collection(db, 'tasks');
 
 /**
- * Crea una tarea nueva en Firestore y devuelve su ID asignado.
- * Valida los datos localmente antes del envío.
+ * Crea una tarea nueva en Firestore y devuelve su ID.
  */
 export async function createTask(input: CreateTaskInput): Promise<string> {
-  // Validación de modelo previa
+  // Validación de negocio del modelo
   validateCreateTask(input);
 
   const docRef = await addDoc(tasksCollection, {
@@ -36,6 +35,9 @@ export async function createTask(input: CreateTaskInput): Promise<string> {
     description: input.description,
     completed: false,
     userId: input.userId,
+    priority: input.priority,
+    dueDate: input.dueDate || null,
+    order: input.order,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -44,19 +46,45 @@ export async function createTask(input: CreateTaskInput): Promise<string> {
 }
 
 /**
- * Actualiza el título y la descripción de una tarea existente.
+ * Actualiza los campos de una tarea existente.
  */
 export async function updateTask(taskId: string, input: UpdateTaskInput): Promise<void> {
   const docRef = doc(db, 'tasks', taskId);
-  await updateDoc(docRef, {
-    title: input.title,
-    description: input.description,
+  const updateData: Record<string, any> = {
     updatedAt: serverTimestamp(),
-  });
+  };
+
+  if (input.title !== undefined) updateData.title = input.title;
+  if (input.description !== undefined) updateData.description = input.description;
+  if (input.completed !== undefined) updateData.completed = input.completed;
+  if (input.priority !== undefined) updateData.priority = input.priority;
+  if (input.dueDate !== undefined) updateData.dueDate = input.dueDate || null;
+  if (input.order !== undefined) updateData.order = input.order;
+
+  await updateDoc(docRef, updateData);
 }
 
 /**
- * Cambia el estado de completado de una tarea (completada o pendiente).
+ * Actualiza el orden (posiciones) de múltiples tareas atómicamente en un solo Batch.
+ * 
+ * COMENTARIO DIDÁCTICO:
+ * - 'writeBatch': Agrupa múltiples escrituras en una sola petición de red, garantizando
+ *   que todas las actualizaciones de posición se guarden con éxito (o ninguna si falla).
+ */
+export async function updateTasksOrder(tasksToUpdate: { id: string; order: number }[]): Promise<void> {
+  const batch = writeBatch(db);
+  tasksToUpdate.forEach((t) => {
+    const docRef = doc(db, 'tasks', t.id);
+    batch.update(docRef, {
+      order: t.order,
+      updatedAt: serverTimestamp(),
+    });
+  });
+  await batch.commit();
+}
+
+/**
+ * Cambia el estado de completado de una tarea.
  */
 export async function toggleTaskCompleted(taskId: string, completed: boolean): Promise<void> {
   const docRef = doc(db, 'tasks', taskId);
@@ -67,7 +95,7 @@ export async function toggleTaskCompleted(taskId: string, completed: boolean): P
 }
 
 /**
- * Elimina físicamente una tarea de Firestore por su ID de documento.
+ * Elimina una tarea por su ID.
  */
 export async function deleteTask(taskId: string): Promise<void> {
   const docRef = doc(db, 'tasks', taskId);
@@ -75,24 +103,18 @@ export async function deleteTask(taskId: string): Promise<void> {
 }
 
 /**
- * Suscribe un observador en tiempo real para escuchar cambios en las tareas del usuario.
+ * Suscribe un observador en tiempo real para escuchar las tareas del usuario.
  * 
  * COMENTARIO DIDÁCTICO:
- * - 'onSnapshot': Escucha activa del servidor de Firestore. Cada creación, edición
- *   o eliminación actualizará la UI reactivamente sin recargas manuales.
- * - 'Timestamp.now()': Se provee como fallback temporal para prevenir errores de tipo
- *   en el cliente durante la estimación local previa al guardado en el servidor de Firebase.
- * 
- * @param userId ID del usuario autenticado para filtrar las tareas correspondientes.
- * @param onTasksChange Callback disparado cada vez que cambian las tareas en Firestore.
- * @param onError Callback en caso de error de conexión o de permisos de Firestore.
- * @returns Función de limpieza (unsubscribe) para cerrar la suscripción al desmontar.
+ * - Mapeamos 'priority', 'dueDate' y 'order' con fallbacks seguros. Las tareas antiguas
+ *   sin estos campos se adaptan para no romper la interfaz web.
  */
 export function subscribeToUserTasks(
   userId: string,
   onTasksChange: (tasks: Task[]) => void,
   onError: (error: Error) => void
 ): () => void {
+  // Mantenemos la consulta base ordenada por createdAt desc para el orden cronológico inicial
   const q = query(
     tasksCollection,
     where('userId', '==', userId),
@@ -103,6 +125,7 @@ export function subscribeToUserTasks(
     q,
     (snapshot) => {
       const tasks: Task[] = [];
+      let index = 0;
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
         tasks.push({
@@ -111,9 +134,15 @@ export function subscribeToUserTasks(
           description: data.description || '',
           completed: !!data.completed,
           userId: data.userId || '',
+          priority: data.priority || 'medium',
+          dueDate: data.dueDate || undefined,
+          // Si no tiene order asignado, se le otorga index (0, 1, 2...) para preservar
+          // el orden cronológico inicial (el más nuevo arriba) cuando se ordena de forma ascendente.
+          order: typeof data.order === 'number' ? data.order : index,
           createdAt: (data.createdAt as Timestamp) || Timestamp.now(),
           updatedAt: (data.updatedAt as Timestamp) || Timestamp.now(),
         });
+        index++;
       });
       onTasksChange(tasks);
     },

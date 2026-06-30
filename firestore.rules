@@ -9,14 +9,24 @@ service cloud.firestore {
     // 2. Un usuario autenticado (request.auth != null) solo puede:
     //    - Crear una tarea si le asigna su propio UID (request.resource.data.userId == request.auth.uid).
     //    - Leer, actualizar o eliminar la tarea si el documento ya guardado contiene su UID (resource.data.userId == request.auth.uid).
-    // 3. Esto previene que usuarios maliciosos accedan, editen o listen tareas de otros miembros.
+    // 3. Validamos opcionalmente 'priority', 'dueDate' y 'order' si están presentes en la petición
+    //    para asegurar la integridad de datos manteniendo compatibilidad con documentos antiguos.
     
     match /tasks/{taskId} {
-      // Un usuario solo puede leer, actualizar o eliminar sus propias tareas
-      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
       
-      // Un usuario solo puede crear tareas si es el autor y asigna su propio userId
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
+        && (!('priority' in request.resource.data) || request.resource.data.priority in ['low', 'medium', 'high'])
+        && (!('dueDate' in request.resource.data) || request.resource.data.dueDate == null || request.resource.data.dueDate is string)
+        && (!('order' in request.resource.data) || request.resource.data.order is number);
+        
+      allow update: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid // Impedimos transferencias de propiedad
+        && (!('priority' in request.resource.data) || request.resource.data.priority in ['low', 'medium', 'high'])
+        && (!('dueDate' in request.resource.data) || request.resource.data.dueDate == null || request.resource.data.dueDate is string)
+        && (!('order' in request.resource.data) || request.resource.data.order is number);
     }
   }
 }
