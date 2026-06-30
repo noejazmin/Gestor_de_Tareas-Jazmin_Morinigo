@@ -1,32 +1,60 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // REGLAS DE SEGURIDAD PARA LA COLECCIÓN DE TAREAS (tasks):
-    // 
-    // COMENTARIOS DIDÁCTICOS:
-    // 1. Cada tarea tiene un campo 'userId' que indica a quién le pertenece.
-    // 2. Un usuario autenticado (request.auth != null) solo puede:
-    //    - Crear una tarea si le asigna su propio UID (request.resource.data.userId == request.auth.uid).
-    //    - Leer, actualizar o eliminar la tarea si el documento ya guardado contiene su UID (resource.data.userId == request.auth.uid).
-    // 3. Validamos opcionalmente 'priority', 'dueDate' y 'order' si están presentes en la petición
-    //    para asegurar la integridad de datos manteniendo compatibilidad con documentos antiguos.
-    
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function hasOnlyAllowedFields(data) {
+      return data.keys().hasOnly([
+        'title',
+        'description',
+        'completed',
+        'userId',
+        'createdAt',
+        'updatedAt',
+        'priority',
+        'dueDate',
+        'order'
+      ]);
+    }
+
+    function hasValidBaseFields(data) {
+      return data.title is string
+        && data.title.size() > 0
+        && data.description is string
+        && data.description.size() > 0
+        && data.completed is bool
+        && data.userId is string;
+    }
+
+    function hasValidExtraFields(data) {
+      return (!('priority' in data) || data.priority in ['low', 'medium', 'high'])
+        && (!('dueDate' in data) || data.dueDate == null || data.dueDate is string)
+        && (!('order' in data) || data.order is number);
+    }
+
     match /tasks/{taskId} {
-      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
-      
-      allow create: if request.auth != null 
+      allow read, delete: if isOwner();
+
+      allow create: if isSignedIn()
         && request.resource.data.userId == request.auth.uid
-        && (!('priority' in request.resource.data) || request.resource.data.priority in ['low', 'medium', 'high'])
-        && (!('dueDate' in request.resource.data) || request.resource.data.dueDate == null || request.resource.data.dueDate is string)
-        && (!('order' in request.resource.data) || request.resource.data.order is number);
-        
-      allow update: if request.auth != null 
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == request.auth.uid // Impedimos transferencias de propiedad
-        && (!('priority' in request.resource.data) || request.resource.data.priority in ['low', 'medium', 'high'])
-        && (!('dueDate' in request.resource.data) || request.resource.data.dueDate == null || request.resource.data.dueDate is string)
-        && (!('order' in request.resource.data) || request.resource.data.order is number);
+        && hasOnlyAllowedFields(request.resource.data)
+        && hasValidBaseFields(request.resource.data)
+        && hasValidExtraFields(request.resource.data);
+
+      allow update: if isOwner()
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.userId == request.auth.uid
+        && hasOnlyAllowedFields(request.resource.data)
+        && hasValidBaseFields(request.resource.data)
+        && hasValidExtraFields(request.resource.data);
     }
   }
 }
