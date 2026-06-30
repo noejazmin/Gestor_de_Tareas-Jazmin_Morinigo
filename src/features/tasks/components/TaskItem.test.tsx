@@ -10,15 +10,19 @@ const mockTask: Task = {
   description: 'Test Desc',
   completed: false,
   userId: 'user123',
+  priority: 'high',
+  dueDate: '2026-12-31',
+  order: 0,
   createdAt: Timestamp.now(),
   updatedAt: Timestamp.now(),
 };
 
 describe('TaskItem Component', () => {
-  test('Muestra título y descripción', () => {
+  test('Muestra título, descripción, prioridad y vencimiento', () => {
     render(
       <TaskItem
         task={mockTask}
+        isManualSort={false}
         onUpdate={async () => {}}
         onDelete={async () => {}}
         onToggleComplete={async () => {}}
@@ -26,6 +30,32 @@ describe('TaskItem Component', () => {
     );
     expect(screen.getByText('Test Tarea')).toBeInTheDocument();
     expect(screen.getByText('Test Desc')).toBeInTheDocument();
+    expect(screen.getByText('Alta')).toBeInTheDocument();
+    expect(screen.getByText(/vence: 2026-12-31/i)).toBeInTheDocument();
+  });
+
+  test('Muestra el indicador de arrastre si el ordenamiento manual está activo', () => {
+    const { rerender } = render(
+      <TaskItem
+        task={mockTask}
+        isManualSort={true}
+        onUpdate={async () => {}}
+        onDelete={async () => {}}
+        onToggleComplete={async () => {}}
+      />
+    );
+    expect(screen.getByLabelText(/arrastrar para reordenar/i)).toBeInTheDocument();
+
+    rerender(
+      <TaskItem
+        task={mockTask}
+        isManualSort={false}
+        onUpdate={async () => {}}
+        onDelete={async () => {}}
+        onToggleComplete={async () => {}}
+      />
+    );
+    expect(screen.queryByLabelText(/arrastrar para reordenar/i)).not.toBeInTheDocument();
   });
 
   test('Permite marcar tarea como completada llamando a onToggleComplete', async () => {
@@ -33,6 +63,7 @@ describe('TaskItem Component', () => {
     render(
       <TaskItem
         task={mockTask}
+        isManualSort={false}
         onUpdate={async () => {}}
         onDelete={async () => {}}
         onToggleComplete={mockToggle}
@@ -52,6 +83,7 @@ describe('TaskItem Component', () => {
     render(
       <TaskItem
         task={mockTask}
+        isManualSort={false}
         onUpdate={mockUpdate}
         onDelete={async () => {}}
         onToggleComplete={async () => {}}
@@ -65,15 +97,19 @@ describe('TaskItem Component', () => {
 
     const titleInput = screen.getByLabelText(/título/i);
     const descInput = screen.getByLabelText(/descripción/i);
+    const prioritySelect = screen.getByLabelText(/prioridad/i);
+    const dueDateInput = screen.getByLabelText(/fecha de vencimiento/i);
     const saveBtn = screen.getByRole('button', { name: /actualizar/i });
 
     fireEvent.change(titleInput, { target: { value: 'Tarea Editada' } });
     fireEvent.change(descInput, { target: { value: 'Desc Editada' } });
+    fireEvent.change(prioritySelect, { target: { value: 'low' } });
+    fireEvent.change(dueDateInput, { target: { value: '2026-06-30' } });
     
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith('1', 'Tarea Editada', 'Desc Editada');
+      expect(mockUpdate).toHaveBeenCalledWith('1', 'Tarea Editada', 'Desc Editada', 'low', '2026-06-30');
     });
   });
 
@@ -84,6 +120,7 @@ describe('TaskItem Component', () => {
     render(
       <TaskItem
         task={mockTask}
+        isManualSort={false}
         onUpdate={async () => {}}
         onDelete={mockDelete}
         onToggleComplete={async () => {}}
