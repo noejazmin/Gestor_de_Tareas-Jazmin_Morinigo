@@ -21,8 +21,9 @@ interface TaskItemProps {
 /**
  * ELEMENTO DE TAREA INDIVIDUAL (TaskItem):
  * 
- * Muestra el contenido de la tarea, badges de prioridad y fecha de vencimiento.
- * Integra useSortable de @dnd-kit para habilitar reordenamiento manual.
+ * Muestra la información de la tarea con un maquetado modular de dos filas:
+ * - Fila superior (Header): Tirador, Checkbox, Título y Badge de prioridad.
+ * - Fila inferior (Body/Footer): Descripción, metadatos y botones de acción.
  */
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
@@ -53,7 +54,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   // Comprobar si la tarea está vencida y no completada
   const isOverdue = useMemo(() => {
     if (!task.dueDate || task.completed) return false;
-    // Comparamos el string de fecha local (YYYY-MM-DD)
     const todayStr = new Date().toISOString().split('T')[0];
     return task.dueDate < todayStr;
   }, [task.dueDate, task.completed]);
@@ -118,73 +118,84 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       style={style}
       className={`task-item ${task.completed ? 'completed' : ''} ${loading ? 'task-loading' : ''} ${isDragging ? 'task-item-dragging' : ''} ${isOverdue ? 'overdue-alert-border' : ''}`}
     >
-      {/* 1. Tirador visual de arrastre (solo activo en ordenamiento manual) */}
-      {isManualSort && (
-        <div
-          className="task-drag-handle"
-          {...attributes}
-          {...listeners}
-          title="Arrastrar para reordenar"
-          aria-label="Arrastrar para reordenar"
-        >
-          ⠿
+      {/* Fila Principal Superior (Header de la tarjeta) */}
+      <div className="task-item-header">
+        <div className="task-item-header-left">
+          {/* 1. Tirador visual de arrastre (solo activo en ordenamiento manual) */}
+          {isManualSort && (
+            <div
+              className="task-drag-handle"
+              {...attributes}
+              {...listeners}
+              title="Arrastrar para reordenar"
+              aria-label="Arrastrar para reordenar"
+            >
+              ⠿
+            </div>
+          )}
+
+          {/* 2. Checkbox personalizado */}
+          <div className="task-item-checkbox-container">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={handleToggle}
+                disabled={loading}
+                aria-label="Marcar tarea como completada"
+              />
+              <span className="checkbox-custom" />
+            </label>
+          </div>
+
+          {/* 3. Título de la tarea */}
+          <h3 className="task-item-title">{task.title}</h3>
         </div>
-      )}
 
-      {/* 2. Checkbox personalizado */}
-      <div className="task-item-checkbox-container">
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={task.completed}
-            onChange={handleToggle}
-            disabled={loading}
-            aria-label="Marcar tarea como completada"
-          />
-          <span className="checkbox-custom" />
-        </label>
-      </div>
-
-      {/* 3. Contenido de la tarea con jerarquía mejorada */}
-      <div className="task-item-content">
-        <h3 className="task-item-title">{task.title}</h3>
-        <p className="task-item-desc">{task.description}</p>
-        
-        {/* Metadatos al pie de la tarjeta (Hito 9) */}
-        <div className="task-item-footer-meta">
+        {/* 4. Prioridad a la derecha del encabezado */}
+        <div className="task-item-header-right">
           <span className={`task-badge priority-${task.priority}`}>
             {task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
           </span>
-          
-          <span className={`task-due-date-badge ${isOverdue ? 'overdue-text' : ''}`}>
-            📅 {task.dueDate ? `Vence: ${task.dueDate}` : 'Sin vencimiento'}
-          </span>
-
-          {isOverdue && <span className="overdue-tag">⚠️ Vencida</span>}
-          {task.completed && <span className="completed-tag">✓ Completada</span>}
         </div>
       </div>
 
-      {/* 4. Botones de acción a la derecha */}
-      <div className="task-item-actions">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="btn-item btn-edit"
-          disabled={loading}
-          title="Editar Tarea"
-          aria-label="Editar Tarea"
-        >
-          ✏️
-        </button>
-        <button
-          onClick={handleDelete}
-          className="btn-item btn-delete"
-          disabled={loading}
-          title="Eliminar Tarea"
-          aria-label="Eliminar Tarea"
-        >
-          🗑️
-        </button>
+      {/* Cuerpo y pie de la tarjeta */}
+      <div className="task-item-body">
+        <p className="task-item-desc">{task.description}</p>
+        
+        <div className="task-item-footer">
+          {/* Metadatos (Vencimiento y estado completado/vencido) */}
+          <div className="task-item-footer-meta">
+            <span className={`task-due-date-badge ${isOverdue ? 'overdue-text' : ''}`}>
+              📅 {task.dueDate ? `Vence: ${task.dueDate}` : 'Sin vencimiento'}
+            </span>
+            {isOverdue && <span className="overdue-tag">⚠️ Vencida</span>}
+            {task.completed && <span className="completed-tag">✓ Completada</span>}
+          </div>
+
+          {/* Botones de acción inline */}
+          <div className="task-item-actions">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="btn-item btn-edit"
+              disabled={loading}
+              title="Editar Tarea"
+              aria-label="Editar Tarea"
+            >
+              ✏️
+            </button>
+            <button
+              onClick={handleDelete}
+              className="btn-item btn-delete"
+              disabled={loading}
+              title="Eliminar Tarea"
+              aria-label="Eliminar Tarea"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
