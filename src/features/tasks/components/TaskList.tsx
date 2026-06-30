@@ -1,9 +1,9 @@
-import React from 'react';
 import {
   DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -45,11 +45,21 @@ export const TaskList: React.FC<TaskListProps> = ({
   onDelete,
   onToggleComplete,
 }) => {
-  // Configuración didáctica de sensores para Pointer y Keyboard
+  // Configuración didáctica de sensores para Pointer, Touch y Keyboard
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // Tolerancia en píxeles para evitar activar arrastre en clicks comunes
+        distance: 5, // Tolerancia en píxeles para evitar activar arrastre en clicks comunes en desktop
+      },
+    }),
+    useSensor(TouchSensor, {
+      // COMENTARIO DIDÁCTICO:
+      // - 'delay': Obliga al usuario a presionar el handle durante 250ms antes de activar el drag. Esto
+      //   garantiza que si desliza el dedo rápidamente, se interprete como scroll nativo de la página.
+      // - 'tolerance': Si se desplaza más de 8px antes del delay, se aborta el arrastre, permitiendo el scroll.
+      activationConstraint: {
+        delay: 250,
+        tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
