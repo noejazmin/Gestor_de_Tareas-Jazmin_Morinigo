@@ -374,3 +374,285 @@
     color: #f87171;
   }
 }
+
+/* CONTROLES DE FILTROS Y ORDENAMIENTO (HITO 9) */
+.tasks-controls-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 640px) {
+  .tasks-controls-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.tasks-filter-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--code-bg);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+}
+
+.filter-tab-btn {
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tab-btn:hover {
+  color: var(--text-h);
+}
+
+.filter-tab-btn.active {
+  background: var(--bg);
+  color: var(--accent);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tasks-sort-select-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sort-select {
+  padding: 8px 12px;
+  font-size: 13.5px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.sort-select:focus {
+  border-color: var(--accent-border);
+}
+
+/* BADGES DE PRIORIDAD */
+.task-item-header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.task-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.priority-low {
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.priority-medium {
+  background: rgba(245, 158, 11, 0.08);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.priority-high {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+/* FECHAS DE VENCIMIENTO Y ALERTAS */
+.task-due-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--text);
+  opacity: 0.85;
+}
+
+.task-due-date.overdue-text {
+  color: #ef4444;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.overdue-tag {
+  background: rgba(239, 68, 68, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-left: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.overdue-alert-border {
+  border-color: rgba(239, 68, 68, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.02) !important;
+}
+
+.overdue-alert-border:hover {
+  border-color: #ef4444 !important;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.08) !important;
+}
+
+/* DRAG & DROP E INDICADOR VISUAL */
+.task-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: grab;
+  color: var(--text);
+  opacity: 0.5;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  font-size: 18px;
+  user-select: none;
+  margin-top: 2px;
+}
+
+.task-drag-handle:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.task-drag-handle:active {
+  cursor: grabbing;
+}
+
+.task-item-dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+  box-shadow: 0 10px 30px rgba(170, 59, 255, 0.15) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ==========================================================================
+   DISEÑO RESPONSIVO (HITO 9 EXTRAS)
+   ========================================================================== */
+
+/* Pantallas medianas y chicas (Tablets y Mobile) */
+@media (max-width: 768px) {
+  .tasks-dashboard-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+}
+
+/* Pantallas móviles típicas y angostas (e.g. iPhone SE y teléfonos comunes) */
+@media (max-width: 580px) {
+  /* Reducir padding de las tarjetas premium para ganar espacio horizontal */
+  .tasks-card-premium {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  /* Evitar deformaciones en la tarjeta de tarea usando flex-wrap */
+  .task-item {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 12px;
+  }
+
+  /* Asegurar que el contenido de la tarea ocupe el máximo espacio sin aplastar */
+  .task-item-content {
+    min-width: 0; /* Evita que flexbox ignore el ancho del contenedor de texto */
+    flex-basis: calc(100% - 76px); /* Espacio remanente tras descontar checkbox e handle */
+    flex-grow: 1;
+  }
+
+  /* Envolver el título y el badge en vertical para evitar solapamiento */
+  .task-item-header-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* Ubicar las acciones de editar/eliminar en su propia fila inferior bien alineada */
+  .task-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+
+  /* Ajustar las pestañas de filtros para que no desborden lateralmente */
+  .tasks-filter-tabs {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .filter-tab-btn {
+    flex-grow: 1;
+    text-align: center;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  /* Adaptar el contenedor de ordenamiento para pantallas angostas */
+  .tasks-sort-select-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sort-select {
+    flex-grow: 1;
+    max-width: 180px;
+    font-size: 12.5px;
+  }
+}
+
+/* Pantallas extremadamente angostas (e.g. pantallas de 320px) */
+@media (max-width: 360px) {
+  .tasks-filter-tabs {
+    gap: 2px;
+  }
+
+  .filter-tab-btn {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+  
+  .sort-select {
+    max-width: 140px;
+    font-size: 12px;
+  }
+}
+

@@ -21,8 +21,13 @@ export const TasksPage: React.FC = () => {
     tasks,
     loading,
     error,
+    filter,
+    sortBy,
+    setFilter,
+    setSortBy,
     createTask,
     updateTask,
+    reorderTasks,
     deleteTask,
     toggleTaskCompleted,
   } = useTasks(user?.uid);
@@ -65,6 +70,44 @@ export const TasksPage: React.FC = () => {
             Mis Tareas
           </h3>
 
+          {/* Controles de Filtros y Ordenamiento (Hito 9) */}
+          <div className="tasks-controls-header">
+            <div className="tasks-filter-tabs">
+              <button
+                onClick={() => setFilter('all')}
+                className={`filter-tab-btn ${filter === 'all' ? 'active' : ''}`}
+              >
+                Todas
+              </button>
+              <button
+                onClick={() => setFilter('pending')}
+                className={`filter-tab-btn ${filter === 'pending' ? 'active' : ''}`}
+              >
+                Pendientes
+              </button>
+              <button
+                onClick={() => setFilter('completed')}
+                className={`filter-tab-btn ${filter === 'completed' ? 'active' : ''}`}
+              >
+                Completadas
+              </button>
+            </div>
+
+            <div className="tasks-sort-select-container">
+              <label htmlFor="tasks-sort-by" className="sort-label">Ordenar por:</label>
+              <select
+                id="tasks-sort-by"
+                className="sort-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'manual' | 'priority' | 'dueDate')}
+              >
+                <option value="manual">Orden manual</option>
+                <option value="priority">Prioridad</option>
+                <option value="dueDate">Fecha de vencimiento</option>
+              </select>
+            </div>
+          </div>
+
           {error && <div className="task-error-alert">{error}</div>}
 
           {loading ? (
@@ -75,6 +118,8 @@ export const TasksPage: React.FC = () => {
           ) : (
             <TaskList
               tasks={tasks}
+              sortBy={sortBy}
+              onReorder={reorderTasks}
               onUpdate={updateTask}
               onDelete={deleteTask}
               onToggleComplete={toggleTaskCompleted}

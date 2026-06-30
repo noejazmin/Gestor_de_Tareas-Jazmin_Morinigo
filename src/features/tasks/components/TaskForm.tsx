@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 
 interface TaskFormProps {
-  onSubmit: (title: string, description: string) => Promise<void>;
+  onSubmit: (
+    title: string,
+    description: string,
+    priority: 'low' | 'medium' | 'high',
+    dueDate?: string
+  ) => Promise<void>;
   initialTitle?: string;
   initialDescription?: string;
+  initialPriority?: 'low' | 'medium' | 'high';
+  initialDueDate?: string;
   submitButtonText?: string;
   onCancel?: () => void;
 }
@@ -18,11 +25,15 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   onSubmit,
   initialTitle = '',
   initialDescription = '',
+  initialPriority = 'medium',
+  initialDueDate = '',
   submitButtonText = 'Guardar',
   onCancel,
 }) => {
   const [title, setTitle] = useState<string>(initialTitle);
   const [description, setDescription] = useState<string>(initialDescription);
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(initialPriority);
+  const [dueDate, setDueDate] = useState<string>(initialDueDate);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -42,11 +53,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
     setSubmitting(true);
     try {
-      await onSubmit(title.trim(), description.trim());
+      await onSubmit(title.trim(), description.trim(), priority, dueDate || undefined);
       // Si no es edición, limpiamos el formulario tras crear la tarea
       if (!onCancel) {
         setTitle('');
         setDescription('');
+        setPriority('medium');
+        setDueDate('');
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al procesar la tarea.');
@@ -83,6 +96,35 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           placeholder="Ej: Definir objetivos del Hito 7 con el equipo..."
           disabled={submitting}
           required
+        />
+      </div>
+
+      {/* Control de Prioridad */}
+      <div className="form-group">
+        <label className="form-label" htmlFor="task-priority">Prioridad</label>
+        <select
+          id="task-priority"
+          className="form-input"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
+          disabled={submitting}
+        >
+          <option value="low">Baja</option>
+          <option value="medium">Media</option>
+          <option value="high">Alta</option>
+        </select>
+      </div>
+
+      {/* Control de Fecha de Vencimiento */}
+      <div className="form-group">
+        <label className="form-label" htmlFor="task-duedate">Fecha de Vencimiento (Opcional)</label>
+        <input
+          id="task-duedate"
+          type="date"
+          className="form-input"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          disabled={submitting}
         />
       </div>
 
