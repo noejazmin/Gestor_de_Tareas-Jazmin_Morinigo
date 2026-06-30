@@ -289,28 +289,49 @@
   letter-spacing: 0.8px;
 }
 
-.form-input {
+/* Formulario y Controles del Dashboard */
+.tasks-page-wrapper .form-input,
+.tasks-page-wrapper .form-textarea,
+.tasks-page-wrapper .sort-select {
   width: 100%;
   padding: 10px 12px;
   border-radius: 6px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  color: var(--text-primary);
+  border: 1px solid var(--input-border) !important;
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
   font-size: 13.5px;
   box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-light);
+/* COMENTARIO DIDÁCTICO:
+   - Forzamos la especificidad del placeholder para que en tema claro use un gris legible
+     y en tema oscuro se integre sutilmente con los tonos oscuros.
+*/
+.tasks-page-wrapper .form-input::placeholder,
+.tasks-page-wrapper .form-textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.75;
 }
 
-.form-textarea {
+.tasks-page-wrapper .form-input:focus,
+.tasks-page-wrapper .form-textarea:focus,
+.tasks-page-wrapper .sort-select:focus {
+  outline: none !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-light) !important;
+}
+
+.tasks-page-wrapper .form-textarea {
   min-height: 80px;
   resize: vertical;
   font-family: inherit;
+}
+
+/* Opciones de select para compatibilidad con navegadores */
+.tasks-page-wrapper select.form-input option {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
 }
 
 .task-form-actions {
