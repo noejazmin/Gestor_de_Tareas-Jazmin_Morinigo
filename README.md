@@ -189,7 +189,7 @@ El proyecto cuenta con cobertura de pruebas unitarias y de integración utilizan
 El proyecto está listo para producción y es compatible con el despliegue automático de Vercel. 
 Gracias al archivo `vercel.json` configurado en la raíz, Vercel gestiona automáticamente el mapeo de sub-rutas estáticas hacia `index.html` sin romper las llamadas a las Serverless Functions.
 
-* **URL de Producción**: [PEGAR ACA MI URL DE VERCEL]
+* **URL de Producción**:(https://gestor-de-tareas-pi4.vercel.app/)
 
 ---
 
